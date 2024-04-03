@@ -1,6 +1,6 @@
-// V3.0 introduces replication. It means we have multiple search services
+// 3.0 introduces replication. It means we have multiple search services
 // (replicas) for each kind and we take the first result returned by the fastest
-// service. This way we dramatically lower the likelihood of discarding results.
+// replica. This way we dramatically lower the likelihood of discarding results.
 // This is a fast and robust program.
 package main
 
@@ -22,6 +22,7 @@ type Result string
 
 func Google(query string) (results []Result) {
 	c := make(chan Result)
+
 	go func() { c <- FirstResult(query, Web1, Web2) }()
 	go func() { c <- FirstResult(query, Image1, Image2) }()
 	go func() { c <- FirstResult(query, Video1, Video2) }()
@@ -36,17 +37,8 @@ func Google(query string) (results []Result) {
 			return
 		}
 	}
-	return
-}
 
-func FirstResult(query string, replicas ...Search) Result {
-	c := make(chan Result)
-	replica := func(i int) { c <- replicas[i](query) }
-	for i := range replicas {
-		go replica(i)
-	}
-	result := <-c
-	return result
+	return
 }
 
 var (
@@ -60,9 +52,18 @@ var (
 
 type Search func(query string) Result
 
+func FirstResult(query string, replicas ...Search) Result {
+	c := make(chan Result)
+	for i := range replicas {
+		go func(i int) { c <- replicas[i](query) }(i)
+	}
+	result := <-c
+	return result
+}
+
 func NewSearch(kind string) Search {
 	return func(query string) Result {
-		time.Sleep(time.Duration(time.Millisecond * time.Duration(rand.Intn(100))))
+		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
 	}
 }

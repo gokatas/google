@@ -21,6 +21,7 @@ type Result string
 
 func Google(query string) (results []Result) {
 	c := make(chan Result)
+
 	go func() { c <- Web(query) }()
 	go func() { c <- Image(query) }()
 	go func() { c <- Video(query) }()
@@ -35,6 +36,7 @@ func Google(query string) (results []Result) {
 			return
 		}
 	}
+
 	return
 }
 
