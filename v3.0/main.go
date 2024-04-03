@@ -50,17 +50,17 @@ func First(query string, replicas ...Search) Result {
 }
 
 var (
-	Web1   = fakeSearch("web")
-	Web2   = fakeSearch("web")
-	Image1 = fakeSearch("image")
-	Image2 = fakeSearch("image")
-	Video1 = fakeSearch("video")
-	Video2 = fakeSearch("video")
+	Web1   = NewSearch("web")
+	Web2   = NewSearch("web")
+	Image1 = NewSearch("image")
+	Image2 = NewSearch("image")
+	Video1 = NewSearch("video")
+	Video2 = NewSearch("video")
 )
 
 type Search func(query string) Result
 
-func fakeSearch(kind string) Search {
+func NewSearch(kind string) Search {
 	return func(query string) Result {
 		time.Sleep(time.Duration(time.Millisecond * time.Duration(rand.Intn(100))))
 		return Result(fmt.Sprintf("%s result for %q\n", kind, query))

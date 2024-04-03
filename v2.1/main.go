@@ -39,14 +39,14 @@ func Google(query string) (results []Result) {
 }
 
 var (
-	Web   = fakeSearch("web")
-	Image = fakeSearch("image")
-	Video = fakeSearch("video")
+	Web   = NewSearch("web")
+	Image = NewSearch("image")
+	Video = NewSearch("video")
 )
 
 type Search func(query string) Result
 
-func fakeSearch(kind string) Search {
+func NewSearch(kind string) Search {
 	return func(query string) Result {
 		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
 		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
