@@ -1,25 +1,24 @@
-// V2.1 times out the search after 80ms using the timeout pattern. Consequently
-// it sometimes returns only partial results. Thus it is fast but not very
-// robust.
+// V2.1 times out googling after 80ms using the timeout pattern. Consequently it
+// sometimes returns only partial results. Thus it is fast but not very robust.
 package main
 
 import (
 	"fmt"
 	"time"
 
-	"google/search"
+	"google"
 )
 
 func main() {
 	start := time.Now()
-	results := google("golang")
+	results := googleIt("golang")
 	elapsed := time.Since(start)
 	fmt.Println(results)
 	fmt.Println(elapsed)
 }
 
-func google(query string) (results []search.Result) {
-	c := make(chan search.Result)
+func googleIt(query string) (results []google.Result) {
+	c := make(chan google.Result)
 
 	go func() { c <- web(query) }()
 	go func() { c <- image(query) }()
@@ -40,7 +39,7 @@ func google(query string) (results []search.Result) {
 }
 
 var (
-	web   = search.New("web")
-	image = search.New("image")
-	video = search.New("video")
+	web   = google.NewSearch("web")
+	image = google.NewSearch("image")
+	video = google.NewSearch("video")
 )

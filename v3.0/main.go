@@ -8,19 +8,19 @@ import (
 	"fmt"
 	"time"
 
-	"google/search"
+	"google"
 )
 
 func main() {
 	start := time.Now()
-	results := google("golang")
+	results := googleIt("golang")
 	elapsed := time.Since(start)
 	fmt.Println(results)
 	fmt.Println(elapsed)
 }
 
-func google(query string) (results []search.Result) {
-	c := make(chan search.Result)
+func googleIt(query string) (results []google.Result) {
+	c := make(chan google.Result)
 
 	go func() { c <- firstResult(query, web1, web2) }()
 	go func() { c <- firstResult(query, image1, image2) }()
@@ -41,16 +41,16 @@ func google(query string) (results []search.Result) {
 }
 
 var (
-	web1   = search.New("web")
-	web2   = search.New("web")
-	image1 = search.New("image")
-	image2 = search.New("image")
-	video1 = search.New("video")
-	video2 = search.New("video")
+	web1   = google.NewSearch("web")
+	web2   = google.NewSearch("web")
+	image1 = google.NewSearch("image")
+	image2 = google.NewSearch("image")
+	video1 = google.NewSearch("video")
+	video2 = google.NewSearch("video")
 )
 
-func firstResult(query string, replicas ...search.Search) search.Result {
-	c := make(chan search.Result)
+func firstResult(query string, replicas ...google.Search) google.Result {
+	c := make(chan google.Result)
 	for i := range replicas {
 		go func(i int) { c <- replicas[i](query) }(i)
 	}
