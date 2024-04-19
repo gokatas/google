@@ -1,4 +1,4 @@
-// 3.0 introduces replication. It means we have multiple search services
+// V3.0 introduces replication. It means we have multiple search services
 // (replicas) for each kind and we take the first result returned by the fastest
 // replica. This way we dramatically lower the likelihood of discarding results.
 // This is a fast and robust program.
@@ -6,26 +6,25 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
+
+	"google"
 )
 
 func main() {
 	start := time.Now()
-	results := Google("golang")
+	results := googleIt("golang")
 	elapsed := time.Since(start)
 	fmt.Println(results)
 	fmt.Println(elapsed)
 }
 
-type Result string
+func googleIt(query string) (results []google.Result) {
+	c := make(chan google.Result)
 
-func Google(query string) (results []Result) {
-	c := make(chan Result)
-
-	go func() { c <- FirstResult(query, Web1, Web2) }()
-	go func() { c <- FirstResult(query, Image1, Image2) }()
-	go func() { c <- FirstResult(query, Video1, Video2) }()
+	go func() { c <- firstResult(query, web1, web2) }()
+	go func() { c <- firstResult(query, image1, image2) }()
+	go func() { c <- firstResult(query, video1, video2) }()
 
 	timeout := time.After(time.Millisecond * 80)
 	for i := 0; i < 3; i++ {
@@ -42,28 +41,19 @@ func Google(query string) (results []Result) {
 }
 
 var (
-	Web1   = NewSearch("web")
-	Web2   = NewSearch("web")
-	Image1 = NewSearch("image")
-	Image2 = NewSearch("image")
-	Video1 = NewSearch("video")
-	Video2 = NewSearch("video")
+	web1   = google.NewSearch("web")
+	web2   = google.NewSearch("web")
+	image1 = google.NewSearch("image")
+	image2 = google.NewSearch("image")
+	video1 = google.NewSearch("video")
+	video2 = google.NewSearch("video")
 )
 
-type Search func(query string) Result
-
-func FirstResult(query string, replicas ...Search) Result {
-	c := make(chan Result)
+func firstResult(query string, replicas ...google.Search) google.Result {
+	c := make(chan google.Result)
 	for i := range replicas {
 		go func(i int) { c <- replicas[i](query) }(i)
 	}
 	result := <-c
 	return result
-}
-
-func NewSearch(kind string) Search {
-	return func(query string) Result {
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
-	}
 }

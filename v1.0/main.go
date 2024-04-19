@@ -1,41 +1,30 @@
-// V1.0 invokes (fake) Web, Image and Video searches serially.
+// V1.0 invokes (fake) web, image and video searches serially.
 package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
+
+	"google"
 )
 
 func main() {
 	start := time.Now()
-	results := Google("golang")
+	results := googleIt("golang")
 	elapsed := time.Since(start)
 	fmt.Println(results)
 	fmt.Println(elapsed)
 }
 
-type Result string
-
-func Google(query string) (results []Result) {
-	results = append(results, Web(query))
-	results = append(results, Image(query))
-	results = append(results, Video(query))
+func googleIt(query string) (results []google.Result) {
+	results = append(results, web(query))
+	results = append(results, image(query))
+	results = append(results, video(query))
 	return
 }
 
 var (
-	Web   = NewSearch("web")
-	Image = NewSearch("image")
-	Video = NewSearch("video")
+	web   = google.NewSearch("web")
+	image = google.NewSearch("image")
+	video = google.NewSearch("video")
 )
-
-type Search func(query string) Result
-
-func NewSearch(kind string) Search {
-	search := func(query string) Result {
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-		return Result(fmt.Sprintf("%s search result for %q\n", kind, query))
-	}
-	return search
-}

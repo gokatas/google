@@ -4,26 +4,25 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
+
+	"google"
 )
 
 func main() {
 	start := time.Now()
-	results := Google("golang")
+	results := googleIt("golang")
 	elapsed := time.Since(start)
 	fmt.Println(results)
 	fmt.Println(elapsed)
 }
 
-type Result string
+func googleIt(query string) (results []google.Result) {
+	c := make(chan google.Result)
 
-func Google(query string) (results []Result) {
-	c := make(chan Result)
-
-	go func() { c <- Web(query) }()
-	go func() { c <- Image(query) }()
-	go func() { c <- Video(query) }()
+	go func() { c <- web(query) }()
+	go func() { c <- image(query) }()
+	go func() { c <- video(query) }()
 
 	for i := 0; i < 3; i++ {
 		result := <-c
@@ -34,16 +33,7 @@ func Google(query string) (results []Result) {
 }
 
 var (
-	Web   = NewSearch("web")
-	Image = NewSearch("image")
-	Video = NewSearch("video")
+	web   = google.NewSearch("web")
+	image = google.NewSearch("image")
+	video = google.NewSearch("video")
 )
-
-type Search func(query string) Result
-
-func NewSearch(kind string) Search {
-	return func(query string) Result {
-		time.Sleep(time.Millisecond * time.Duration(rand.Intn(100)))
-		return Result(fmt.Sprintf("%s result for %q\n", kind, query))
-	}
-}
