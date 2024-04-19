@@ -1,5 +1,6 @@
-// V2.1 times out googling after 80ms using the timeout pattern. Consequently it
-// sometimes returns only partial results. Thus it is fast but not very robust.
+// V2.1 times out googling after 80ms using a variation of the timeout pattern.
+// Consequently it sometimes returns only partial results. Thus it is fast but
+// not very robust.
 package main
 
 import (

@@ -1,4 +1,4 @@
-// V1.0 invokes (fake) Web, Image and Video searches serially.
+// V1.0 invokes (fake) web, image and video searches serially.
 package main
 
 import (
