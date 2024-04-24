@@ -4,17 +4,13 @@ package main
 
 import (
 	"fmt"
-	"time"
 
 	"google"
 )
 
 func main() {
-	start := time.Now()
 	results := googleIt("golang")
-	elapsed := time.Since(start)
 	fmt.Println(results)
-	fmt.Println(elapsed)
 }
 
 func googleIt(query string) (results []google.Result) {
