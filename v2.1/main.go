@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"google"
+	"github.com/gokatas/google"
 )
 
 func main() {

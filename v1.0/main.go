@@ -4,7 +4,7 @@ package main
 import (
 	"fmt"
 
-	"google"
+	"github.com/gokatas/google"
 )
 
 func main() {
